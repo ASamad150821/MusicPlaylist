@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Playlist Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Music Playlist Manager</h1>
+
+    <div id="playlist">
+        <h2>Current Playlist</h2>
+        <ul id="song-list"></ul>
+    </div>
+
+    <div id="add-song">
+        <h2 id="form-title">Add a Song</h2>
+        <form id="song-form">
+            <label for="song-name">Song Name:</label>
+            <input type="text" id="song-name" required>
+
+            <label for="artist-name">Artist Name:</label>
+            <input type="text" id="artist-name" required>
+
+            <button type="submit" id="form-button">Add Song</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
