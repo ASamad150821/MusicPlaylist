@@ -18,11 +18,43 @@ function getSongsFromASpecifiedPlaylist(){
 }
 
 // ------------------------------
+// Local Storage Helper Section
+// ------------------------------
+
+function savePlaylistsToLocalStorage(){
+  localStorage.setItem("playlists", JSON.stringify(playlists));
+  localStorage.setItem('currentPlaylistIndex', currentPlaylistIndex);
+}
+
+function loadPlaylistsFromLocalStorage(){
+  let savedPlaylists = localStorage.getItem("playlists");
+  if(savedPlaylists)
+  {
+    playlists = JSON.parse(savedPlaylists);
+  }
+  else
+  {
+    playlists = [
+      {
+       name: "Default Playlist",
+       songs: [] 
+      }
+    ]
+  }
+
+  let savedCurrentPlaylist = localStorage.getItem("currentPlaylistIndex");
+  if(savedCurrentPlaylist)
+  {
+    currentPlaylistIndex = parseInt(savedCurrentPlaylist);
+  }
+}
+
+// ------------------------------
 // Business Logic Section
 // ------------------------------
 
 // Function to add a song to the playlist
-function addSong(songName, artistName) {
+function addSong(songName, artistName) {  
   let songsfromplaylist = getSongsFromASpecifiedPlaylist();
   let song = {
     name: songName,
@@ -30,12 +62,17 @@ function addSong(songName, artistName) {
   };
 
   songsfromplaylist.push(song);
+
+  savePlaylistsToLocalStorage();
 }
 
 // Function to remove a song from the playlist
 function removeSong(index) {
+
   let songsfromplaylist = getSongsFromASpecifiedPlaylist();
   songsfromplaylist.splice(index, 1);
+
+  savePlaylistsToLocalStorage();
 }
 
 // Function to get the song details for modification
@@ -47,6 +84,7 @@ function getSongDetails(index) {
 // Function to modify a song in the playlist
 function modifySong(index, songName, artistName) {
   
+
   let songsfromplaylist = getSongsFromASpecifiedPlaylist();
   if(index >= 0 & index <= songsfromplaylist.length)
   {
@@ -58,6 +96,8 @@ function modifySong(index, songName, artistName) {
   {
     throw new Error("Invalid index. Song modification failed.");
   }
+
+  savePlaylistsToLocalStorage();
 
 }
 
@@ -222,6 +262,9 @@ function updatePlaylistDropdown() {
 
 // Function to initialize the app
 function initializeApp() {
+
+loadPlaylistsFromLocalStorage();
+
   let songForm = document.getElementById('song-form');
   songForm.addEventListener('submit', handleFormSubmit);
 
