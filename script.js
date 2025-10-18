@@ -1,7 +1,21 @@
 // Initialize an empty array to store the playlist
-let playlist = [];
+let playlists = [
+  {
+   name: "Default Playlist",
+   songs: [] 
+  }
+]
 // Variable to keep track of the current song index for modification
-let currentIndex = null;
+let currentPlaylistIndex = 0;
+let currentSongIndex = null;
+
+// ------------------------------
+// Helper Section
+// ------------------------------
+
+function getSongsFromASpecifiedPlaylist(){
+  return playlists[currentPlaylistIndex].songs;
+}
 
 // ------------------------------
 // Business Logic Section
@@ -9,30 +23,34 @@ let currentIndex = null;
 
 // Function to add a song to the playlist
 function addSong(songName, artistName) {
-    let song = {
+  let songsfromplaylist = getSongsFromASpecifiedPlaylist();
+  let song = {
     name: songName,
     artist: artistName
   };
 
-  playlist.push(song);
+  songsfromplaylist.push(song);
 }
 
 // Function to remove a song from the playlist
 function removeSong(index) {
-    playlist.splice(index, 1);
+  let songsfromplaylist = getSongsFromASpecifiedPlaylist();
+  songsfromplaylist.splice(index, 1);
 }
 
 // Function to get the song details for modification
 function getSongDetails(index) {
-    return playlist[index];
+  let songsfromplaylist = getSongsFromASpecifiedPlaylist();
+  return songsfromplaylist[index];
 }
 
 // Function to modify a song in the playlist
 function modifySong(index, songName, artistName) {
   
-  if(index >= 0 & index <= playlist.length)
+  let songsfromplaylist = getSongsFromASpecifiedPlaylist();
+  if(index >= 0 & index <= songsfromplaylist.length)
   {
-    let song = playlist[index];
+    let song = songsfromplaylist[index];
     song.name = songName;
     song.artist = artistName;
   }
@@ -43,15 +61,16 @@ function modifySong(index, songName, artistName) {
 
 }
 
-
 // Function to display the playlist
 function displayPlaylist() {
   
-if(playlist.length == 0)
+let songsfromplaylist = getSongsFromASpecifiedPlaylist();
+
+if(songsfromplaylist.length == 0)
 {
   displayEmptyPlaylistMessage();
 }
-else if(playlist.length > 0){
+else if(songsfromplaylist.length > 0){
   displaySongs();
 }
 
@@ -68,7 +87,7 @@ function displaySongs() {
   songList.innerHTML = '';
   
   // TODO: Iterate over the playlist and create a list item for each song
-  playlist.forEach((song, index) => {
+  getSongsFromASpecifiedPlaylist().forEach((song, index) => {
    let listItemm = createSongListItem(song, index);
    songList.appendChild(listItemm);
   });
@@ -87,13 +106,13 @@ function handleFormSubmit(event) {
   
   // TODO: Determine if the song if being added or modified
 
-  if(currentIndex == null)
+  if(currentSongIndex == null)
     {
       addSong(songName, artistName);
     }
     else
     {
-      modifySong(currentIndex, songName, artistName);
+      modifySong(currentSongIndex, songName, artistName);
     }
 
   // Clear form fields and update the display
@@ -106,7 +125,7 @@ function clearFormFields() {
   document.getElementById('song-name').value = '';
   document.getElementById('artist-name').value = '';
   updateFormTitle('Add a Song', 'Add Song');
-  currentIndex = null;
+  currentSongIndex = null;
 }
 
 // Function to display a message when the playlist is empty
@@ -159,7 +178,7 @@ function populateFormForModification(index) {
   const song = getSongDetails(index);
   document.getElementById('song-name').value = song.name;
   document.getElementById('artist-name').value = song.artist;
-  currentIndex = index;
+  currentSongIndex = index;
 }
 
 // Function to update the form title and button text
@@ -168,11 +187,60 @@ function updateFormTitle(title, buttonText) {
   document.getElementById('form-button').textContent = buttonText;
 }
 
+// ------------------------------
+// Playlist Management
+// ------------------------------
+
+function createPlaylist(name) {
+  playlists.push({ name: name, songs: [] });
+  currentPlaylistIndex = playlists.length - 1;
+  updatePlaylistDropdown();
+  displayPlaylist();
+}
+
+function switchPlaylist(index) {
+  currentPlaylistIndex = index;
+  displayPlaylist();
+  clearFormFields();
+}
+
+function updatePlaylistDropdown() {
+  const selector = document.getElementById("playlist-selector");
+  selector.innerHTML = "";
+
+  playlists.forEach((pl, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.innerHTML = pl.name;
+    if (index == currentPlaylistIndex) 
+    {option.selected = true;}
+    selector.appendChild(option);
+  });
+}
+
+
+
 // Function to initialize the app
 function initializeApp() {
-  const songForm = document.getElementById('song-form');
+  let songForm = document.getElementById('song-form');
   songForm.addEventListener('submit', handleFormSubmit);
-  
+
+  let newplaylistbutton = document.getElementById('new-playlist-button');
+  newplaylistbutton.addEventListener("click", (event) => {
+    event.preventDefault();
+    let pname = prompt("Enter new playlist name");
+    if (pname) 
+    {
+      createPlaylist(pname)
+    };
+  });
+
+  let switchplaylistbutton = document.getElementById('playlist-selector');
+  switchplaylistbutton.addEventListener("change", (event) => {
+    switchPlaylist(parseInt(event.target.value));
+  });
+
+  updatePlaylistDropdown();
   displayPlaylist();
 }
 
@@ -187,7 +255,7 @@ if (typeof module !== "undefined" && module.exports) {
     handleFormSubmit,
     displaySongs,
     initializeApp,
-    playlist, currentIndex
+    playlists, currentPlaylistIndex, currentSongIndex
   };
 } else {
   // In a browser, initialize the app either after the document loads or immediately if already loaded
